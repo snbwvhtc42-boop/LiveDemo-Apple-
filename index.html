@@ -69,8 +69,19 @@ body{background:var(--bg);color:var(--text);line-height:1.55;padding:20px 14px 6
 
 .demo-panel{background:linear-gradient(180deg,#ffffff 0%,var(--amber-soft) 100%);border-radius:20px;padding:24px;border:1.5px solid var(--amber-border);box-shadow:0 6px 20px rgba(217,119,6,0.06);}
 .video-box{background:#1c1917;border-radius:16px;padding:12px;margin-bottom:20px;box-shadow:0 6px 18px rgba(0,0,0,0.12);}
+.video-wrap{position:relative;border-radius:10px;overflow:hidden;}
 .video-box video{width:100%;max-height:460px;border-radius:10px;display:block;background:#000;}
+.video-unmute-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:opacity 0.25s ease;}
+.video-unmute-overlay:hover{background:rgba(0,0,0,0.55);}
+.unmute-content{text-align:center;color:#fff;}
+.unmute-icon{font-size:44px;margin-bottom:10px;line-height:1;}
+.unmute-text{font-size:17px;font-weight:700;margin-bottom:4px;}
+.unmute-sub{font-size:13px;color:rgba(255,255,255,0.82);}
 .video-tip{color:#e7e5e4;font-size:13px;margin-top:8px;text-align:center;}
+.video-parts{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px;}
+.vpart-btn{background:rgba(255,255,255,0.14);color:#e7e5e4;border:1px solid rgba(255,255,255,0.22);border-radius:999px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.15s;}
+.vpart-btn:hover{background:rgba(255,255,255,0.25);}
+.vpart-btn.active{background:#f59e0b;color:#1c1917;border-color:#fbbf24;font-weight:700;}
 
 .mode-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;}
 .mode-switch{display:inline-flex;background:#f5f5f4;padding:4px;border-radius:11px;gap:4px;border:1px solid var(--border);}
@@ -136,8 +147,7 @@ body{background:var(--bg);color:var(--text);line-height:1.55;padding:20px 14px 6
 <div class="section-panel ai-panel" id="aiSection">
 <span class="panel-tag-ai">时段一 · Apple Intelligence 公共样机实操</span>
 <div class="panel-title">提交 Apple Intelligence Demo 实操照片</div>
-<div class="panel-sub">使用公共演示样机完成以下 3 项功能体验并截屏，选择照片后点击底部按钮直接上传至后台（自动匹配名单，无需发群）</div>
-<div class="privacy-banner">后区隐私与公共样机规范：后区严禁开启相机拍摄或使用视觉智能识别环境，全程勿填个人生日或个人特征信息</div>
+<div class="panel-sub">使用公共演示样机完成以下 3 项功能体验并截屏，选择照片后点击底部按钮直接上传</div>
 
 <div class="task-grid">
 <div class="task-card" id="taskCard0">
@@ -211,8 +221,25 @@ body{background:var(--bg);color:var(--text);line-height:1.55;padding:20px 14px 6
 <div class="panel-sub">先在下方完整观看 Live Demo 视频，再完成 6 道题（满分 100 分，80 分及以上达标并上传凭证至后台）</div>
 
 <div class="video-box">
-<video id="liveDemoVideo" controls playsinline preload="metadata" src="LiveDemo.mp4"></video>
-<div class="video-tip">点击播放观看完整 9 分钟 Live Demo 演示视频（支持全屏播放）</div>
+<div class="video-wrap">
+<video id="liveDemoVideo" controls playsinline preload="auto" autoplay muted src="https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_1.mp4"></video>
+<div class="video-unmute-overlay" id="unmuteOverlay" onclick="enableVideoSound()">
+<div class="unmute-content">
+<div class="unmute-icon">🔊</div>
+<div class="unmute-text">点击开启声音播放</div>
+<div class="unmute-sub">视频正在静音自动播放中</div>
+</div>
+</div>
+</div>
+<div class="video-parts" id="videoPartsBar">
+<button type="button" class="vpart-btn active" onclick="playVideoPart(0,true)">第1段：开场与分工</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(1,true)">第2段：邀约与提问</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(2,true)">第3段：相机核心演示</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(3,true)">第4段：Watch与AirPods延伸</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(4,true)">第5段：转化交接与复盘</button>
+</div>
+<div class="video-tip" id="videoPartTip">1080p 高清连播模式 · 当前第 1 / 5 段（播完自动无缝跳下一段）</div>
+<link id="nextVideoPreload" rel="preload" as="video" href="https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_2.mp4" />
 </div>
 
 <div class="mode-row">
@@ -919,6 +946,49 @@ document.getElementById("progressFill").style.width = "0%";
 renderQuiz();
 startTimer();
 }
+
+const VIDEO_PARTS = [
+  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_1.mp4",
+  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_2.mp4",
+  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_3.mp4",
+  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_4.mp4",
+  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_5.mp4"
+];
+let currentVideoPart = 0;
+
+function enableVideoSound() {
+  const v = document.getElementById("liveDemoVideo");
+  v.muted = false;
+  v.play().catch(() => {});
+  const overlay = document.getElementById("unmuteOverlay");
+  if (overlay) overlay.style.display = "none";
+}
+
+function playVideoPart(idx, autoPlay) {
+  if (idx < 0 || idx >= VIDEO_PARTS.length) return;
+  currentVideoPart = idx;
+  const v = document.getElementById("liveDemoVideo");
+  v.src = VIDEO_PARTS[idx];
+  const btns = document.querySelectorAll("#videoPartsBar .vpart-btn");
+  btns.forEach((b, i) => b.classList.toggle("active", i === idx));
+  document.getElementById("videoPartTip").textContent = `1080p 高清连播模式 · 当前第 ${idx + 1} / 5 段（播完自动无缝连播下一段）`;
+  const pre = document.getElementById("nextVideoPreload");
+  if (pre && idx + 1 < VIDEO_PARTS.length) pre.href = VIDEO_PARTS[idx + 1];
+  if (autoPlay) {
+    v.play().catch(() => {});
+  }
+}
+(function bindSeamlessVideo() {
+  const v = document.getElementById("liveDemoVideo");
+  if (!v) return;
+  v.addEventListener("ended", function() {
+    if (currentVideoPart + 1 < VIDEO_PARTS.length) {
+      playVideoPart(currentVideoPart + 1, true);
+    } else {
+      document.getElementById("videoPartTip").textContent = "✓ 完整 5 段高清视频已全部播放完毕，请完成下方 6 道核心题";
+    }
+  });
+})();
 
 renderQuiz();
 startTimer();
