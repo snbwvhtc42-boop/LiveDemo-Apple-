@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Live Demo & Apple Intelligence Demo 实操</title>
+<style>
+:root{--bg:#f4f6f5;--card:#ffffff;--text:#1c1917;--subtext:#57534e;--teal:#0d9488;--teal-dark:#0f766e;--teal-soft:#f0fdfa;--teal-border:#99f6e4;--amber:#d97706;--amber-dark:#b45309;--amber-soft:#fffbeb;--amber-border:#fcd34d;--success:#16a34a;--danger:#dc2626;--border:#d6d3d1;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",sans-serif;}
+body{background:var(--bg);color:var(--text);line-height:1.55;padding:20px 14px 60px;font-size:16px;}
+#confettiCanvas{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999;}
+.container{max-width:860px;margin:0 auto;}
+
+.hero{background:linear-gradient(135deg,#115e59 0%,#0f766e 55%,#b45309 100%);color:#fff;border-radius:20px;padding:26px 24px;margin-bottom:16px;box-shadow:0 10px 28px rgba(15,118,110,0.16);}
+.hero-top{display:flex;align-items:center;justify-content:flex-end;margin-bottom:8px;}
+.top-btn{background:rgba(255,255,255,0.18);color:#fff;border:1px solid rgba(255,255,255,0.3);font-size:13px;font-weight:600;padding:5px 13px;border-radius:999px;cursor:pointer;}
+.top-btn:hover{background:rgba(255,255,255,0.28);}
+.hero h1{font-size:26px;margin-bottom:8px;letter-spacing:-0.2px;}
+.hero p{font-size:15px;color:rgba(255,255,255,0.92);}
+
+.player-bar{background:var(--card);border-radius:16px;padding:15px 20px;margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(0,0,0,0.06);box-shadow:0 2px 10px rgba(0,0,0,0.03);}
+.player-input-group{display:flex;align-items:center;gap:10px;flex:1;min-width:240px;}
+.player-input-group label{font-size:15px;font-weight:700;white-space:nowrap;}
+.input-text{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:16px;outline:none;}
+.input-text:focus{border-color:var(--teal);}
+.match-badge{font-size:13px;font-weight:700;padding:5px 12px;border-radius:999px;background:#f5f5f4;color:var(--subtext);}
+.match-badge.ok{background:#dcfce7;color:#15803d;}
+.match-badge.warn{background:#fef3c7;color:#b45309;}
+
+.session-tabs{display:flex;gap:8px;background:#e7e5e4;padding:5px;border-radius:14px;margin-bottom:20px;flex-wrap:wrap;}
+.session-tab{flex:1;min-width:170px;border:none;background:transparent;color:#57534e;font-size:14px;font-weight:700;padding:11px 12px;border-radius:10px;cursor:pointer;transition:all 0.18s ease;}
+.session-tab.active-all{background:#ffffff;color:#1c1917;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.session-tab.active-ai{background:#ffffff;color:var(--teal-dark);box-shadow:0 2px 8px rgba(13,148,136,0.12);}
+.session-tab.active-demo{background:#ffffff;color:var(--amber-dark);box-shadow:0 2px 8px rgba(217,119,6,0.12);}
+
+.section-panel{margin-bottom:26px;}
+.ai-panel{background:linear-gradient(180deg,#ffffff 0%,var(--teal-soft) 100%);border-radius:20px;padding:24px;border:1.5px solid var(--teal-border);box-shadow:0 6px 20px rgba(13,148,136,0.06);}
+.panel-tag-ai{display:inline-block;background:#ccfbf1;color:#115e59;font-size:13px;font-weight:700;padding:4px 12px;border-radius:999px;margin-bottom:8px;}
+.panel-tag-demo{display:inline-block;background:#fef3c7;color:#92400e;font-size:13px;font-weight:700;padding:4px 12px;border-radius:999px;margin-bottom:8px;}
+.panel-title{font-size:21px;font-weight:700;margin-bottom:6px;}
+.panel-sub{font-size:14px;color:var(--subtext);margin-bottom:16px;}
+.privacy-banner{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:600;margin-bottom:16px;}
+
+.task-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:14px;margin-bottom:16px;}
+.task-card{background:#fff;border:1.5px solid #ccfbf1;border-radius:16px;padding:16px;display:flex;flex-direction:column;justify-content:space-between;gap:12px;}
+.task-card.done{border-color:var(--teal);background:#f0fdfa;}
+.task-num{display:inline-block;font-size:12px;font-weight:700;color:#0f766e;background:#ccfbf1;padding:3px 10px;border-radius:999px;margin-bottom:8px;}
+.task-name{font-size:17px;font-weight:700;margin-bottom:6px;}
+.task-desc{font-size:14px;color:#44403c;line-height:1.5;}
+.task-upload-area{display:flex;flex-direction:column;gap:8px;}
+.task-preview{display:none;width:100%;height:145px;object-fit:contain;background:#f5f5f4;border-radius:10px;border:1px solid var(--border);}
+.btn-upload{background:#f5f5f4;border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;cursor:pointer;color:var(--text);text-align:center;}
+.btn-upload:hover{background:#e7e5e4;}
+
+.reset-device-bar{background:#fffbeb;border:1px solid var(--amber-border);border-radius:12px;padding:12px 15px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:#92400e;cursor:pointer;}
+.reset-device-bar input{width:18px;height:18px;cursor:pointer;flex-shrink:0;}
+.ai-action-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.ai-status-text{font-size:14px;color:var(--subtext);font-weight:600;}
+.btn-teal{background:var(--teal);color:#fff;border:none;border-radius:999px;padding:13px 26px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 12px rgba(13,148,136,0.28);}
+.btn-teal:hover{background:var(--teal-dark);}
+.btn-teal:disabled{opacity:0.55;cursor:not-allowed;}
+
+.credential-wrap{display:none;margin-top:18px;text-align:center;background:#fff;padding:18px;border-radius:16px;border:1.5px solid var(--teal);}
+.credential-wrap p{font-size:15px;font-weight:700;color:#0f766e;margin-bottom:10px;}
+.credential-wrap img{max-width:100%;max-height:420px;border-radius:12px;border:1px solid var(--border);margin-bottom:12px;}
+.cred-btn-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+.btn-outline{background:#f5f5f4;color:var(--text);border:1px solid var(--border);border-radius:999px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;}
+.btn-outline:hover{background:#e7e5e4;}
+
+.demo-panel{background:linear-gradient(180deg,#ffffff 0%,var(--amber-soft) 100%);border-radius:20px;padding:24px;border:1.5px solid var(--amber-border);box-shadow:0 6px 20px rgba(217,119,6,0.06);}
+.video-box{background:#1c1917;border-radius:16px;padding:12px;margin-bottom:20px;box-shadow:0 6px 18px rgba(0,0,0,0.12);}
+.video-box video{width:100%;max-height:460px;border-radius:10px;display:block;background:#000;}
+.video-tip{color:#e7e5e4;font-size:13px;margin-top:8px;text-align:center;}
+
+.mode-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;}
+.mode-switch{display:inline-flex;background:#f5f5f4;padding:4px;border-radius:11px;gap:4px;border:1px solid var(--border);}
+.mode-btn{border:none;background:transparent;color:#57534e;font-size:14px;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer;}
+.mode-btn.active{background:#ffffff;color:var(--amber-dark);box-shadow:0 2px 6px rgba(0,0,0,0.08);}
+
+.sticky-bar{position:sticky;top:10px;z-index:10;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border:1px solid var(--amber-border);border-radius:14px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.progress-text,.timer-text{font-size:15px;font-weight:600;white-space:nowrap;}
+.timer-text{color:var(--amber-dark);}
+.progress-track{flex:1;height:9px;background:#fef3c7;border-radius:999px;overflow:hidden;}
+.progress-fill{height:100%;width:0%;background:var(--amber);transition:width 0.25s ease;}
+
+.q-card{background:#ffffff;border-radius:16px;padding:20px;margin-bottom:15px;border:1.5px solid #fde68a;}
+.q-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.q-stage{font-size:13px;font-weight:700;color:var(--amber-dark);}
+.q-score-tag{font-size:12px;font-weight:700;padding:3px 9px;border-radius:6px;background:var(--amber-soft);color:var(--amber-dark);border:1px solid var(--amber-border);}
+.q-title{font-size:17px;font-weight:600;margin-bottom:13px;line-height:1.45;}
+.options{display:flex;flex-direction:column;gap:10px;}
+.option-btn{text-align:left;background:#fafaf9;border:2px solid rgba(0,0,0,0.06);border-radius:12px;padding:12px 15px;font-size:15px;line-height:1.45;color:var(--text);cursor:pointer;transition:all 0.15s ease;}
+.option-btn:hover{border-color:rgba(217,119,6,0.35);background:#fff;}
+.option-btn.selected{border-color:var(--amber);background:#fffbeb;color:#92400e;font-weight:600;}
+.option-btn.correct{background:#dcfce7;border-color:var(--success);color:#14532d;font-weight:600;}
+.option-btn.wrong{background:#fee2e2;border-color:var(--danger);color:#7f1d1d;}
+.explain-box{display:none;margin-top:12px;padding:12px 15px;border-radius:10px;background:#fafaf9;border:1px solid rgba(0,0,0,0.08);font-size:14px;line-height:1.6;color:#44403c;}
+
+.submit-wrap{text-align:center;margin-top:22px;}
+.btn-amber{background:var(--amber);color:#fff;border:none;border-radius:999px;padding:14px 34px;font-size:16px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(217,119,6,0.28);text-decoration:none;display:inline-block;}
+.btn-amber:hover{background:var(--amber-dark);}
+
+.result-modal{display:none;background:#fff;border-radius:18px;padding:24px 20px;margin-bottom:20px;text-align:center;border:2px solid var(--amber);box-shadow:0 12px 30px rgba(0,0,0,0.08);}
+.score-num{font-size:54px;font-weight:800;color:var(--amber-dark);line-height:1.1;margin:8px 0;}
+.rank-desc{font-size:15px;color:var(--subtext);margin-bottom:14px;}
+.demo-cred-img{display:none;max-width:100%;max-height:260px;border-radius:12px;border:1px solid var(--border);margin:10px auto 14px;}
+.upload-s2-box{display:none;background:#fffbeb;border:1.5px dashed var(--amber);border-radius:14px;padding:16px;margin:12px auto 14px;max-width:540px;}
+.result-btn-group{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+<canvas id="confettiCanvas"></canvas>
+<div class="container">
+<div class="hero">
+<div class="hero-top">
+<button class="top-btn" id="soundToggleBtn" onclick="toggleSound()">音效：已开启</button>
+</div>
+<h1>Live Demo &amp; Apple Intelligence Demo 实操</h1>
+<p>时段一提交Demo 实操照片；时段二看完LiveDemo 后完成题目上传凭证</p>
+</div>
+
+<div class="player-bar">
+<div class="player-input-group">
+<label for="playerName">同事姓名：</label>
+<input type="text" id="playerName" class="input-text" placeholder="请输入姓名" oninput="onNameChange()" />
+</div>
+<span class="match-badge" id="nameMatchBadge">输入姓名自动匹配名单</span>
+</div>
+
+<div class="session-tabs">
+<button class="session-tab active-all" id="tabAll" onclick="switchTab('all')">同时查看两个时段</button>
+<button class="session-tab" id="tabAI" onclick="switchTab('ai')">时段一：提交 Demo 实操照片</button>
+<button class="session-tab" id="tabDemo" onclick="switchTab('demo')">时段二：看完 LiveDemo 后完成题目上传凭证</button>
+</div>
+
+<div class="section-panel ai-panel" id="aiSection">
+<span class="panel-tag-ai">时段一 · Apple Intelligence 公共样机实操</span>
+<div class="panel-title">提交 Apple Intelligence Demo 实操照片</div>
+<div class="panel-sub">使用公共演示样机完成以下 3 项功能体验并截屏，选择照片后点击底部按钮直接上传至后台（自动匹配名单，无需发群）</div>
+<div class="privacy-banner">后区隐私与公共样机规范：后区严禁开启相机拍摄或使用视觉智能识别环境，全程勿填个人生日或个人特征信息</div>
+
+<div class="task-grid">
+<div class="task-card" id="taskCard0">
+<div>
+<span class="task-num" id="taskBadge0">实操照片 1 · 待选择</span>
+<div class="task-name">写作工具润色或摘要</div>
+<div class="task-desc">在公共样机打开备忘录或示例邮件，选中一段日常工作或出行示例短文（不含个人信息），调出「写作工具」切换「专业 / 简洁 / 友好」任一语气或生成「要点摘要」，截屏上传。</div>
+</div>
+<div class="task-upload-area">
+<img id="taskImg0" class="task-preview" alt="实操照片1预览" />
+<label class="btn-upload">
+选择/更换实操照片 1
+<input type="file" accept="image/*" style="display:none;" onchange="handleTaskImg(0, this)" />
+</label>
+</div>
+</div>
+
+<div class="task-card" id="taskCard1">
+<div>
+<span class="task-num" id="taskBadge1">实操照片 2 · 待选择</span>
+<div class="task-name">趣味智绘表情生成</div>
+<div class="task-desc">在备忘录或信息中调出表情键盘，输入动物、美食或运动等通用趣味场景词（不使用人像或同事特征），现场生成一个全新「智绘表情」，截屏上传。</div>
+</div>
+<div class="task-upload-area">
+<img id="taskImg1" class="task-preview" alt="实操照片2预览" />
+<label class="btn-upload">
+选择/更换实操照片 2
+<input type="file" accept="image/*" style="display:none;" onchange="handleTaskImg(1, this)" />
+</label>
+</div>
+</div>
+
+<div class="task-card" id="taskCard2">
+<div>
+<span class="task-num" id="taskBadge2">实操照片 3 · 待选择</span>
+<div class="task-name">打字问 Siri 或 样机相册体验</div>
+<div class="task-desc">双击屏幕底部呼出「打字与 Siri 交流」询问一项系统功能使用技巧并截屏；或直接打开样机自带相册（不开相机），用自然语言搜索示例照片/视频或对示例图体验「消除」工具，截屏上传。</div>
+</div>
+<div class="task-upload-area">
+<img id="taskImg2" class="task-preview" alt="实操照片3预览" />
+<label class="btn-upload">
+选择/更换实操照片 3
+<input type="file" accept="image/*" style="display:none;" onchange="handleTaskImg(2, this)" />
+</label>
+</div>
+</div>
+</div>
+
+<label class="reset-device-bar">
+<input type="checkbox" id="resetDeviceCheck" onchange="updateAiProgress()" />
+<span>我已完成截屏，并已清除公共样机内新建的测试内容，还原样机初始整洁状态</span>
+</label>
+
+<div class="ai-action-row">
+<div class="ai-status-text" id="aiStatusText">当前进度：已选择 0 / 3 张实操照片</div>
+<button class="btn-teal" id="submitS1Btn" onclick="submitSlot1()">提交 Demo 实操照片</button>
+</div>
+
+<div class="credential-wrap" id="posterWrap">
+<p id="s1SyncMsg">正在上传至后台...</p>
+<img id="posterImg" src="" alt="时段一实操照片拼图" />
+<div class="cred-btn-row">
+<a id="downloadPosterLink" class="btn-outline" download="时段1_Demo实操.jpg">保存备份图片到本机</a>
+</div>
+</div>
+</div>
+
+<div class="section-panel demo-panel" id="demoSection">
+<span class="panel-tag-demo">时段二 · 看完 LiveDemo 后完成题目上传凭证</span>
+<div class="panel-title">观看 Live Demo 视频并完成 6 道核心题</div>
+<div class="panel-sub">先在下方完整观看 Live Demo 视频，再完成 6 道题（满分 100 分，80 分及以上达标并上传凭证至后台）</div>
+
+<div class="video-box">
+<video id="liveDemoVideo" controls playsinline preload="metadata" src="LiveDemo.mp4"></video>
+<div class="video-tip">点击播放观看完整 9 分钟 Live Demo 演示视频（支持全屏播放）</div>
+</div>
+
+<div class="mode-row">
+<div style="font-size:15px;font-weight:700;color:#92400e;">答题区（共 6 题，最多允许错 1 题）</div>
+<div class="mode-switch">
+<button class="mode-btn active" id="modeExamBtn" onclick="switchQuizMode('exam')">整卷作答</button>
+<button class="mode-btn" id="modeInstantBtn" onclick="switchQuizMode('instant')">即答即看</button>
+</div>
+</div>
+
+<div class="sticky-bar">
+<div class="progress-text" id="progressText">已答 0 / 6 题</div>
+<div class="progress-track">
+<div class="progress-fill" id="progressFill"></div>
+</div>
+<div class="timer-text" id="timerText">用时 00:00</div>
+</div>
+
+<div class="result-modal" id="resultBox">
+<div class="panel-tag-demo" id="resultBadge">答题结果</div>
+<div class="score-num" id="scoreNum">0分</div>
+<div class="rank-desc" id="rankDesc"></div>
+<img id="demoCredImg" class="demo-cred-img" alt="时段二通关凭证" />
+
+<div class="upload-s2-box" id="uploadS2Box">
+<div style="font-size:14px;font-weight:700;color:#92400e;margin-bottom:8px;" id="s2UploadStatus">已生成通关凭证，正在自动上传至后台...</div>
+<div class="result-btn-group">
+<button class="btn-amber" id="confirmUploadS2Btn" style="padding:10px 24px;font-size:14px;" onclick="uploadSlot2Credential(null)">一键上传此凭证至后台</button>
+<label class="btn-outline" style="cursor:pointer;">
+或选择截屏图片上传
+<input type="file" accept="image/*" style="display:none;" onchange="if(this.files&&this.files[0])uploadSlot2Credential(this.files[0])" />
+</label>
+</div>
+</div>
+
+<div class="result-btn-group">
+<a id="downloadDemoCredLink" class="btn-outline" style="display:none;" download="时段2_LiveDemo凭证.jpg">保存凭证备份</a>
+<button class="btn-outline" onclick="resetQuiz()">重新作答</button>
+</div>
+</div>
+
+<div id="quizContainer"></div>
+<div class="submit-wrap">
+<button class="btn-amber" id="submitBtn" onclick="submitQuiz()">完成题目并上传凭证</button>
+</div>
+</div>
+</div>
+
+<script>
+const CLOUD_TOPIC = "fy27q1_livedemo_ai_sync_9x7m2k8p_v1";
+const CLOUD_BASE = "https://ntfy.sh/" + CLOUD_TOPIC;
+const PLAYER_KEY = "fy27q1_player_name_v3";
+const OPTION_LABELS = ["A", "B", "C", "D"];
+
+const EMP_KEYS = [
+["alan wei","魏兴华","alan"],["austin xie","谢传玮"],["binbin ji","纪泽斌","binbin"],["cecil huang","黄振宇","cecil"],
+["clare qiu","丘艺多","clare"],["hansen liu","刘帅飞","hansen"],["lynn zeng","曾晓玲","lynn"],["momo zhu","朱梅女","momo"],
+["nathan zhuang","庄竞尧","nathan"],["nicole tang","唐梦","nicole"],["nydia shen","沈泽男","nydia"],["star zhou","周鑫秀","star"],
+["tina guo","郭伟芳"],["vivian ma","马文婷","vivian"],["winnie wu","吴思萍","winnie"],["yuri zhang","张木子","yuri"],
+["alex ye","叶力","alex"],["bruce lan","蓝立平","bruce"],["erin liu","刘艾琳","erin"],["ferry lang","郎福江","ferry"],
+["gianna chen","陈思安","gianna"],["jackie guo","jiaqi guo","郭嘉琪","jackie"],["mag zhou","周觅谧","mag"],["phyllis zheng","郑璐滢","phyllis"],
+["roy shi","石熔英","roy"],["yota huang","黄昱涛","yota"],["ziya zheng","郑晓燕","ziya"],["wendy lin","林玮","wendy"],
+["heaven wu","伍汶健","heaven"],["molly wang","王雪娇","molly"],["polly zhong","钟琴芳","polly"],["tianyi deng","邓添仪","tianyi"],
+["shirley zhong","钟丽婷","shirley"],["andriel wu","吴承昊","andriel"],["jenny hong","洪锦思","jenny"],["yan chen","陈燕","yan"],
+["jennifer shi","石再舟","jennifer"],["charlie chen","陈袆婧","charlie"],["austin ju","鞠承坤"],["cyber xu","许宇辰","cyber"],
+["jerry yang","杨勇","jerry"],["mina yang","杨舒铭","mina"],["stella huang","黄签贺","stella"],["zee wang","王梓","zee"],
+["erica zhu","朱赛娣","erica"],["illya sun","孙菲涵","illya"],["joyce xu","许芷瑜","joyce"],["kiki ren","任祺","kiki"],
+["leah niu","牛楠楠","leah"],["polo luo","罗延剑","polo"],["sylus kang","康琦琪","sylus"],["young xu","许海洋","young"],
+["ze meng","蒙泽"],["alston liu","刘捷","alston"],["devin zheng","郑文超","devin"],["heecul ling","凌珍宝","heecul"],
+["jason sun","孙建聪","jason"],["john yu","余俊超"],["maggie tu","涂知","maggie"],["fay yang","杨志婷","fay"],
+["shy huang","黄书海","shy"],["tina liao","廖婉璐"],["daniel huang","黄媛","daniel"],["suzy su","苏婉芳","suzy"],
+["ondine lin","林奕","ondine"],["kay wang","王舒婷","kay"],["sene zhuang","庄欣轶","sene"],["coral xu","徐逸珊","coral"],
+["troy xie","谢云飞","troy"],["fish zhang","张建立","fish"],["fenny he","何雪香","fenny"],["harry liu","刘嵘","harry"],
+["luna yan","颜璐","luna"],["summer cai","蔡静茹","summer"],["zoe zhao","赵慧雯","zoe"],["abby lee","李青","abby"],
+["bourbon liao","廖弘","bourbon"],["chuck chen","陈超强","chuck"],["gala li","李利丹","gala"],["haysar hailati","海沙尔·海拉提","haysar"],
+["joanann huang","黄琼萱","joanann"],["leo ye","叶鹭江","leo"],["milk yang","杨帆","milk"],["sunny sun","孙晓燕"],
+["trevor tang","唐龙","trevor"],["alisa wu","吴雅云","alisa"],["rebecca zhan","詹崴","rebecca"],["milkly chen","陈雁妮","milkly"],
+["ken lin","林晨剑","ken"],["max ma","马鸿鹏","max"],["saki zhao","赵欣妍","saki"],["wen luo","罗雯","wen"],
+["stin lin","林睿","stin"],["ella xu","徐芸秀","ella"],["hans yang","杨林泽","hans"],["leena zhang","张李娜","leena"],
+["miya shi","释传红","miya"],["saturn liu","刘屿安","saturn"],["sunny chen","陈旭"],["tiffany huang","黄恺颉","tiffany"],
+["aday xiao","肖丹丹","aday"],["cici liu","刘思辰","cici"],["yvonne xia","夏鸥","yvonne"],["arvin luo","罗全鑫","arvin"],
+["waiting huang","黄玮婷","waiting"],["rex zheng","郑宇嘉","rex"],["allen xu","许瑞扬"],["emma wu","吴青","emma"],
+["john hong","洪明清"],["mengseng lim","lim明胜","mengseng"],["sylvia hu","胡兴萍","sylvia"],["yulei song","宋昱磊","yulei"],
+["angela zhang","张莹莹","angela"],["ava yang","杨钦","ava"],["danny zhou","周星凯","danny"],["jessica zhu","朱海","jessica"]
+];
+
+function findMatchedEmpIdx(raw) {
+if (!raw || !raw.trim()) return -1;
+const norm = raw.trim().toLowerCase().replace(/\s+/g, " ");
+const compact = norm.replace(/\s+/g, "");
+for (let i = 0; i < EMP_KEYS.length; i++) {
+const arr = EMP_KEYS[i];
+for (let j = 0; j < arr.length; j++) {
+const k = arr[j];
+if (norm === k || compact === k.replace(/\s+/g, "")) return i;
+}
+}
+return -1;
+}
+
+const questions = [
+{
+tag: "第 1 题 · Get Ready 准备细节",
+points: 15,
+q: "1. Live Demo 开始前的 Get Ready 环节，除了确认演示设备就绪外，视频中特别展示了哪两个细节动作确保演示清晰不受遮挡？",
+options: [
+"调大手机外放音量并关闭蓝牙",
+"佩戴好收音设备后，将耳麦线整理在衣内并调整 Lanyard 挂绳",
+"将所有样机全部关机重启",
+"提前打开计算器页面"
+],
+answer: 1,
+tip: "视频要点：把耳麦线收进衣内并理顺 Lanyard 挂绳，低头带顾客操作手机时才干净利落。"
+},
+{
+tag: "第 2 题 · Demo Huddle 角色分工",
+points: 15,
+q: "2. 在 Demo Huddle 阶段，团队需根据店内客流快速沟通，明确哪三个角色的配合与交接？",
+options: [
+"店长、销售、收银",
+"主讲、摄影、场控",
+"Role A（主导分享互动）、Role B（配合演示、协助上手与交接）、Leader（关注现场协调支持）",
+"仅靠主讲人独自包揽全程无需配合"
+],
+answer: 2,
+tip: "视频要点：开场前快速对齐 Role A、Role B 与 Leader 的分工和交接手势，团队配合才能顺畅推进转化。"
+},
+{
+tag: "第 3 题 · 邀约留客与提问互动",
+points: 15,
+q: "3. 在 Invite、Welcome 与 Start with a Question 环节，视频是怎么吸引顾客留下并决定演示顺序的？",
+options: [
+"直接报价并按固定顺序背完所有参数",
+"联动 Product Zone 同事邀约，介绍自己与搭档并引导拿起面前手机；通过日常提问了解兴趣场景，灵活调整 Feature 顺序",
+"等顾客主动提问才开始操作手机",
+"只挑步骤最复杂的功能演示"
+],
+answer: 1,
+tip: "视频要点：用体验亮点引发好奇让顾客拿起面前手机，再用日常问题摸清需求，灵活调整 Feature 顺序。"
+},
+{
+tag: "第 4 题 · 视频相机演示细节",
+points: 15,
+q: "4. 视频演示 iPhone Duo 拍照时，点右下方 6 个点选了哪个风格拍好肤质？拍演唱会长焦又点了哪个变焦数字并开启了左上角什么功能？",
+options: [
+"冷调黑白；数字 2 与 人像光效",
+"戏剧暖光；数字 5 与 实况照片",
+"珠光柔肤；数字 8 与 Duo 双屏预览",
+"复古胶片；数字 10 与 全景模式"
+],
+answer: 2,
+tip: "视频细节：右下角 6 个点左滑选「珠光柔肤」切前置自拍；长焦直接点数字「8」拍远处标识；左上角开启「Duo 双屏预览」充当人形支架。"
+},
+{
+tag: "第 5 题 · 生态延伸实战案例",
+points: 20,
+q: "5. 当现场顾客提到 iPhone 18 Pro 无法像 iPhone Duo 一样双屏预览时，视频中如何通过搭档配合自然延伸出「拍照不求人套餐」？",
+options: [
+"建议顾客多买一台手机当取景器",
+"搭配 Apple Watch Series 12（按数码表冠打开相机遥控器同步双屏预览自拍）与 AirPods 5（佩戴后捏住耳柄遥控拍摄）",
+"只推荐购买第三方自拍杆",
+"让顾客用 10 秒定时跑过去自拍"
+],
+answer: 1,
+tip: "视频细节：将顾客视线自然交接给佩戴生态设备的搭档，现场演示 Watch Series 12 相机遥控器 + AirPods 5 捏耳柄遥控自拍。"
+},
+{
+tag: "第 6 题 · 购买转化、交接与复盘",
+points: 20,
+q: "6. 在最后推动转化（Solution & Ways to Buy）与收尾复盘（Reflect and Reset）环节，视频展示了哪套完整闭环？",
+options: [
+"讲完功能直接解散，让顾客自己上官网看",
+"推荐当天现货方案并介绍 Trade In 与信用卡/花呗最高 24 期免息，Role A 与 Role B 默契交接意向顾客，结束后由 Leader 带领快速复盘调整",
+"只讲全款价格不提分期，也不做团队复盘",
+"全部交给 Leader 一人负责收银结账"
+],
+answer: 1,
+tip: "视频要点：告知现货 + Trade In / 最高24期免息临门一脚，Role A/B 做好温暖交接，每轮结束后 Leader 带队快速复盘。"
+}
+];
+
+let soundEnabled = true;
+let quizMode = "exam";
+let submitted = false;
+let lastScore = 0;
+let lastDemoBlob = null;
+const userAnswers = new Array(questions.length).fill(null);
+const questionRevealed = new Array(questions.length).fill(false);
+const taskImages = [null, null, null];
+let startTime = Date.now();
+let elapsedSeconds = 0;
+let timerInterval = null;
+
+function onNameChange() {
+const val = document.getElementById("playerName").value.trim();
+try { localStorage.setItem(PLAYER_KEY, val); } catch (e) {}
+const badge = document.getElementById("nameMatchBadge");
+if (!val) {
+badge.className = "match-badge";
+badge.textContent = "输入姓名自动匹配名单";
+return;
+}
+const idx = findMatchedEmpIdx(val);
+if (idx !== -1) {
+badge.className = "match-badge ok";
+badge.textContent = "✓ 已自动匹配名单";
+} else {
+badge.className = "match-badge warn";
+badge.textContent = "未匹配到名单，请核对中文姓名或英文全名拼写";
+}
+}
+
+(function initName() {
+try {
+const saved = localStorage.getItem(PLAYER_KEY) || "";
+if (saved) {
+document.getElementById("playerName").value = saved;
+onNameChange();
+}
+} catch (e) {}
+})();
+
+function switchTab(tab) {
+document.getElementById("tabAll").className = "session-tab" + (tab === "all" ? " active-all" : "");
+document.getElementById("tabAI").className = "session-tab" + (tab === "ai" ? " active-ai" : "");
+document.getElementById("tabDemo").className = "session-tab" + (tab === "demo" ? " active-demo" : "");
+document.getElementById("aiSection").style.display = (tab === "all" || tab === "ai") ? "block" : "none";
+document.getElementById("demoSection").style.display = (tab === "all" || tab === "demo") ? "block" : "none";
+playTapSound(true);
+}
+
+function handleTaskImg(idx, inputEl) {
+const file = inputEl.files && inputEl.files[0];
+if (!file) return;
+const reader = new FileReader();
+reader.onload = function(evt) {
+const img = new Image();
+img.onload = function() {
+taskImages[idx] = img;
+const preview = document.getElementById("taskImg" + idx);
+preview.src = evt.target.result;
+preview.style.display = "block";
+document.getElementById("taskCard" + idx).classList.add("done");
+document.getElementById("taskBadge" + idx).textContent = `实操照片 ${idx + 1} · 已就绪`;
+playTapSound(true);
+updateAiProgress();
+};
+img.src = evt.target.result;
+};
+reader.readAsDataURL(file);
+}
+
+function updateAiProgress() {
+const uploaded = taskImages.filter(Boolean).length;
+const checked = document.getElementById("resetDeviceCheck").checked;
+document.getElementById("aiStatusText").textContent = `当前进度：已选择 ${uploaded} / 3 张照片 ｜ 样机还原确认：${checked ? "已勾选" : "未勾选"}`;
+}
+
+function dataURLToBlob(dataURL) {
+const parts = dataURL.split(",");
+const mime = parts[0].match(/:(.*?);/)[1];
+const bstr = atob(parts[1]);
+let n = bstr.length;
+const u8 = new Uint8Array(n);
+while (n--) u8[n] = bstr.charCodeAt(n);
+return new Blob([u8], { type: mime });
+}
+
+async function pushCloudRecord(slot, rawName, empIdx, score, blobObj, filenameASCII) {
+let imgUrl = "";
+if (blobObj) {
+try {
+const putRes = await fetch(CLOUD_BASE, {
+method: "PUT",
+headers: { "Filename": filenameASCII },
+body: blobObj
+});
+if (putRes.ok) {
+const putJson = await putRes.json();
+if (putJson && putJson.attachment && putJson.attachment.url) {
+imgUrl = putJson.attachment.url;
+}
+}
+} catch (e) {}
+}
+const now = new Date();
+const nowStr = now.toLocaleString("zh-CN", { hour12: false });
+const payload = {
+action: "checkin",
+uid: now.getTime() + "_" + Math.random().toString(36).slice(2, 7),
+slot: slot,
+empIdx: empIdx,
+name: rawName,
+score: score,
+imgUrl: imgUrl,
+time: nowStr,
+ts: now.getTime()
+};
+const postRes = await fetch(CLOUD_BASE, {
+method: "POST",
+body: JSON.stringify(payload)
+});
+return postRes.ok;
+}
+
+async function submitSlot1() {
+let playerName = document.getElementById("playerName").value.trim();
+if (!playerName) {
+playerName = prompt("请输入姓名：") || "";
+if (!playerName) return;
+document.getElementById("playerName").value = playerName;
+onNameChange();
+}
+const empIdx = findMatchedEmpIdx(playerName);
+if (empIdx === -1) {
+if (!confirm("你输入的姓名暂未自动匹配到名单，建议填写完整中文名或英文全名以便自动登记。确定继续提交吗？")) return;
+}
+const missing = taskImages.findIndex(img => !img);
+if (missing !== -1) {
+alert(`请先选择「实操照片 ${missing + 1}」（共需 3 张）`);
+return;
+}
+if (!document.getElementById("resetDeviceCheck").checked) {
+alert("请先清除公共样机内新建的测试内容还原样机，并勾选确认栏");
+return;
+}
+
+const btn = document.getElementById("submitS1Btn");
+btn.disabled = true;
+btn.textContent = "正在上传照片至后台...";
+
+const W = 1200, H = 820;
+const c = document.createElement("canvas");
+c.width = W; c.height = H;
+const g = c.getContext("2d");
+g.fillStyle = "#f0fdfa"; g.fillRect(0, 0, W, H);
+g.fillStyle = "#0f766e"; g.fillRect(0, 0, W, 115);
+g.fillStyle = "#ffffff";
+g.font = "bold 30px -apple-system, PingFang SC, sans-serif";
+g.fillText("时段一：Apple Intelligence Demo 实操照片凭证", 36, 52);
+const nowStr = new Date().toLocaleString("zh-CN", { hour12: false });
+g.fillStyle = "#ccfbf1";
+g.font = "600 20px -apple-system, PingFang SC, sans-serif";
+g.fillText(`姓名：${playerName}    ｜    提交时间：${nowStr}    ｜    已还原公共样机`, 36, 90);
+
+const titles = ["1. 写作工具润色/摘要", "2. 趣味智绘表情", "3. 打字问 Siri / 相册体验"];
+const cardW = 364, cardH = 650;
+for (let i = 0; i < 3; i++) {
+const x = 28 + i * (cardW + 26), y = 140;
+g.fillStyle = "#ffffff"; g.fillRect(x, y, cardW, cardH);
+g.strokeStyle = "#99f6e4"; g.lineWidth = 2; g.strokeRect(x, y, cardW, cardH);
+g.fillStyle = "#0f766e";
+g.font = "bold 20px -apple-system, PingFang SC, sans-serif";
+g.fillText(titles[i], x + 18, y + 36);
+const img = taskImages[i];
+const boxX = x + 14, boxY = y + 54, boxW = cardW - 28, boxH = cardH - 70;
+g.fillStyle = "#f8fafc"; g.fillRect(boxX, boxY, boxW, boxH);
+const scale = Math.min(boxW / img.width, boxH / img.height);
+const drawW = img.width * scale, drawH = img.height * scale;
+g.drawImage(img, boxX + (boxW - drawW) / 2, boxY + (boxH - drawH) / 2, drawW, drawH);
+}
+const dataUrl = c.toDataURL("image/jpeg", 0.82);
+document.getElementById("posterImg").src = dataUrl;
+const link = document.getElementById("downloadPosterLink");
+link.href = dataUrl;
+link.download = `时段1_AI实操_${playerName}.jpg`;
+document.getElementById("posterWrap").style.display = "block";
+
+const msgEl = document.getElementById("s1SyncMsg");
+msgEl.textContent = "正在同步至后台名单...";
+try {
+const ok = await pushCloudRecord("s1", playerName, empIdx, 100, dataURLToBlob(dataUrl), `slot1_emp${empIdx >= 0 ? empIdx : 'x'}.jpg`);
+if (ok) {
+msgEl.textContent = "✓ 时段一 Demo 实操照片已成功上传至后台并自动匹配登记！";
+playInstantCheckSound(true);
+} else {
+msgEl.textContent = "网络波动未同步成功，请保存备份图片或重试提交";
+}
+} catch (e) {
+msgEl.textContent = "网络受限，请保存备份图片后重试";
+}
+btn.disabled = false;
+btn.textContent = "重新提交 Demo 实操照片";
+}
+
+function buildDemoCredDataUrl(playerName, score, timeUsedStr, nowStr) {
+const W = 900, H = 440;
+const c = document.createElement("canvas");
+c.width = W; c.height = H;
+const g = c.getContext("2d");
+g.fillStyle = "#fffbeb"; g.fillRect(0, 0, W, H);
+g.fillStyle = "#b45309"; g.fillRect(0, 0, W, 96);
+g.fillStyle = "#ffffff";
+g.font = "bold 28px -apple-system, PingFang SC, sans-serif";
+g.fillText("时段二：Live Demo 观看与答题通关凭证", 34, 58);
+g.fillStyle = "#1c1917";
+g.font = "bold 40px -apple-system, PingFang SC, sans-serif";
+g.fillText(`姓名：${playerName}`, 40, 175);
+g.fillStyle = "#d97706";
+g.font = "800 72px -apple-system, PingFang SC, sans-serif";
+g.fillText(`${score} 分`, 40, 275);
+g.fillStyle = "#44403c";
+g.font = "600 22px -apple-system, PingFang SC, sans-serif";
+g.fillText(`考核状态：已达标（6道核心题）  ｜  用时：${timeUsedStr}`, 40, 340);
+g.fillStyle = "#78716c";
+g.font = "500 20px -apple-system, PingFang SC, sans-serif";
+g.fillText(`完成时间：${nowStr}`, 40, 385);
+return c.toDataURL("image/jpeg", 0.86);
+}
+
+async function uploadSlot2Credential(customFile) {
+const playerName = document.getElementById("playerName").value.trim();
+const empIdx = findMatchedEmpIdx(playerName);
+const statusEl = document.getElementById("s2UploadStatus");
+const btn = document.getElementById("confirmUploadS2Btn");
+btn.disabled = true;
+statusEl.textContent = "正在上传时段二凭证至后台...";
+const blobToSend = customFile ? customFile : lastDemoBlob;
+try {
+const ok = await pushCloudRecord("s2", playerName, empIdx, lastScore, blobToSend, `slot2_emp${empIdx >= 0 ? empIdx : 'x'}.jpg`);
+if (ok) {
+statusEl.style.color = "#15803d";
+statusEl.textContent = "✓ 时段二通关凭证已成功上传至后台并自动匹配登记！";
+btn.textContent = "已成功上传凭证";
+playInstantCheckSound(true);
+return;
+}
+} catch (e) {}
+statusEl.style.color = "#dc2626";
+statusEl.textContent = "上传遇到网络波动，请再点一次上传或保存下方凭证备份";
+btn.disabled = false;
+}
+
+let audioCtx = null;
+function getAudioCtx() {
+if (!audioCtx) {
+const C = window.AudioContext || window.webkitAudioContext;
+if (C) audioCtx = new C();
+}
+if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
+return audioCtx;
+}
+function toggleSound() {
+soundEnabled = !soundEnabled;
+document.getElementById("soundToggleBtn").textContent = soundEnabled ? "音效：已开启" : "音效：已静音";
+if (soundEnabled) playTapSound(true);
+}
+function playTapSound(isSelecting = true) {
+if (!soundEnabled) return;
+const c = getAudioCtx(); if (!c) return;
+const now = c.currentTime, osc = c.createOscillator(), gain = c.createGain();
+osc.type = "sine";
+osc.frequency.setValueAtTime(isSelecting ? 520 : 420, now);
+osc.frequency.exponentialRampToValueAtTime(isSelecting ? 760 : 320, now + 0.065);
+gain.gain.setValueAtTime(0.12, now);
+gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+osc.connect(gain); gain.connect(c.destination);
+osc.start(now); osc.stop(now + 0.07);
+}
+function playInstantCheckSound(isRight) {
+if (!soundEnabled) return;
+const c = getAudioCtx(); if (!c) return;
+const now = c.currentTime;
+if (isRight) {
+[587.33, 880].forEach((freq, idx) => {
+const osc = c.createOscillator(), gain = c.createGain();
+osc.type = "sine";
+osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+gain.gain.setValueAtTime(0.14, now + idx * 0.08);
+gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.16);
+osc.connect(gain); gain.connect(c.destination);
+osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.17);
+});
+} else {
+const osc = c.createOscillator(), gain = c.createGain();
+osc.type = "triangle";
+osc.frequency.setValueAtTime(240, now);
+osc.frequency.linearRampToValueAtTime(170, now + 0.2);
+gain.gain.setValueAtTime(0.16, now);
+gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+osc.connect(gain); gain.connect(c.destination);
+osc.start(now); osc.stop(now + 0.23);
+}
+}
+function playPerfectCelebrationAudio() {
+if (!soundEnabled) return;
+const c = getAudioCtx(); if (!c) return;
+const now = c.currentTime;
+[{f:523.25,t:0,d:0.14},{f:659.25,t:0.12,d:0.14},{f:783.99,t:0.24,d:0.14},{f:1046.5,t:0.36,d:0.5}].forEach(n => {
+const osc = c.createOscillator(), gain = c.createGain();
+osc.type = "triangle";
+osc.frequency.setValueAtTime(n.f, now + n.t);
+gain.gain.setValueAtTime(0.2, now + n.t);
+gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.d);
+osc.connect(gain); gain.connect(c.destination);
+osc.start(now + n.t); osc.stop(now + n.t + n.d + 0.02);
+});
+}
+
+const confettiCanvas = document.getElementById("confettiCanvas");
+const ctx = confettiCanvas.getContext("2d");
+let confettiParticles = [], confettiAnimId = null;
+const CONFETTI_COLORS = ["#0d9488","#14b8a6","#f59e0b","#ea580c","#10b981","#fbbf24"];
+function resizeConfettiCanvas() { confettiCanvas.width = window.innerWidth; confettiCanvas.height = window.innerHeight; }
+window.addEventListener("resize", resizeConfettiCanvas);
+resizeConfettiCanvas();
+function launchFullCelebration() {
+confettiParticles = [];
+resizeConfettiCanvas();
+playPerfectCelebrationAudio();
+const w = confettiCanvas.width, h = confettiCanvas.height;
+for (let i = 0; i < 150; i++) {
+confettiParticles.push({
+x: Math.random() * w, y: -20 - Math.random() * h * 0.35,
+vx: (Math.random() - 0.5) * 8, vy: Math.random() * 6 + 3,
+size: Math.random() * 8 + 6, color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+rot: Math.random() * Math.PI * 2, rotS: (Math.random() - 0.5) * 0.2, opacity: 1
+});
+}
+if (!confettiAnimId) animateConfetti();
+}
+function animateConfetti() {
+ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+for (let i = confettiParticles.length - 1; i >= 0; i--) {
+const p = confettiParticles[i];
+p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.rot += p.rotS;
+if (p.y > confettiCanvas.height + 30) p.opacity -= 0.08;
+if (p.opacity <= 0) { confettiParticles.splice(i, 1); continue; }
+ctx.save(); ctx.globalAlpha = Math.max(0, p.opacity); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+ctx.fillStyle = p.color; ctx.fillRect(-p.size / 2, -p.size / 3, p.size, p.size * 0.66); ctx.restore();
+}
+confettiAnimId = confettiParticles.length > 0 ? requestAnimationFrame(animateConfetti) : null;
+}
+
+function switchQuizMode(mode) {
+if (quizMode === mode) return;
+quizMode = mode;
+document.getElementById("modeExamBtn").classList.toggle("active", mode === "exam");
+document.getElementById("modeInstantBtn").classList.toggle("active", mode === "instant");
+playTapSound(true);
+questions.forEach((_, qIdx) => {
+if (mode === "instant" && userAnswers[qIdx] !== null && !questionRevealed[qIdx]) revealSingleQuestion(qIdx, false);
+});
+}
+function revealSingleQuestion(qIdx, withSound) {
+const item = questions[qIdx], chosen = userAnswers[qIdx];
+questionRevealed[qIdx] = true;
+if (withSound) playInstantCheckSound(chosen === item.answer);
+for (let i = 0; i < item.options.length; i++) {
+const btn = document.getElementById(`q${qIdx}_opt${i}`);
+btn.classList.remove("selected");
+if (i === item.answer) btn.classList.add("correct");
+else if (i === chosen) btn.classList.add("wrong");
+}
+document.getElementById(`explain_${qIdx}`).style.display = "block";
+}
+function renderQuiz() {
+const container = document.getElementById("quizContainer");
+container.innerHTML = "";
+questions.forEach((item, qIdx) => {
+const card = document.createElement("div");
+card.className = "q-card";
+card.innerHTML = `<div class="q-meta"><div class="q-stage">${item.tag}</div><span class="q-score-tag">${item.points} 分</span></div><div class="q-title">${item.q}</div>`;
+const optsDiv = document.createElement("div");
+optsDiv.className = "options";
+item.options.forEach((optText, optIdx) => {
+const btn = document.createElement("button");
+btn.className = "option-btn";
+btn.id = `q${qIdx}_opt${optIdx}`;
+btn.textContent = `${OPTION_LABELS[optIdx]}. ${optText}`;
+btn.onclick = () => selectOption(qIdx, optIdx);
+optsDiv.appendChild(btn);
+});
+card.appendChild(optsDiv);
+const explain = document.createElement("div");
+explain.className = "explain-box";
+explain.id = `explain_${qIdx}`;
+explain.innerHTML = `<strong>正确答案：${OPTION_LABELS[item.answer]}</strong><br>${item.tip}`;
+card.appendChild(explain);
+container.appendChild(card);
+});
+}
+function selectOption(qIdx, optIdx) {
+if (submitted || questionRevealed[qIdx]) return;
+userAnswers[qIdx] = optIdx;
+if (quizMode === "instant") {
+revealSingleQuestion(qIdx, true);
+} else {
+playTapSound(true);
+for (let i = 0; i < questions[qIdx].options.length; i++) {
+document.getElementById(`q${qIdx}_opt${i}`).classList.toggle("selected", i === optIdx);
+}
+}
+const count = userAnswers.filter(v => v !== null).length;
+document.getElementById("progressText").textContent = `已答 ${count} / ${questions.length} 题`;
+document.getElementById("progressFill").style.width = `${(count / questions.length) * 100}%`;
+}
+function startTimer() {
+clearInterval(timerInterval);
+startTime = Date.now();
+elapsedSeconds = 0;
+document.getElementById("timerText").textContent = "用时 00:00";
+timerInterval = setInterval(() => {
+if (!submitted) {
+elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+document.getElementById("timerText").textContent = `用时 ${formatTime(elapsedSeconds)}`;
+}
+}, 1000);
+}
+function formatTime(sec) {
+return `${String(Math.floor(sec / 60)).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
+}
+
+function submitQuiz() {
+let playerName = document.getElementById("playerName").value.trim();
+if (!playerName) {
+playerName = prompt("请输入姓名：") || "";
+if (!playerName) return;
+document.getElementById("playerName").value = playerName;
+onNameChange();
+}
+const empIdx = findMatchedEmpIdx(playerName);
+if (empIdx === -1) {
+if (!confirm("你输入的姓名暂未匹配到名单，建议核对中文名或完整英文名拼写。确定继续吗？")) return;
+}
+const unans = userAnswers.findIndex(v => v === null);
+if (unans !== -1) {
+alert(`还有第 ${unans + 1} 题未选择，答完 6 题即可出分`);
+document.getElementById(`q${unans}_opt0`).scrollIntoView({ behavior: "smooth", block: "center" });
+return;
+}
+submitted = true;
+clearInterval(timerInterval);
+let score = 0;
+questions.forEach((item, qIdx) => {
+if (userAnswers[qIdx] === item.answer) score += item.points;
+questionRevealed[qIdx] = true;
+for (let i = 0; i < item.options.length; i++) {
+const btn = document.getElementById(`q${qIdx}_opt${i}`);
+btn.classList.remove("selected");
+if (i === item.answer) btn.classList.add("correct");
+else if (i === userAnswers[qIdx]) btn.classList.add("wrong");
+}
+document.getElementById(`explain_${qIdx}`).style.display = "block";
+});
+
+lastScore = score;
+const nowStr = new Date().toLocaleString("zh-CN", { hour12: false });
+const timeStr = formatTime(elapsedSeconds);
+const resultBox = document.getElementById("resultBox");
+const badge = document.getElementById("resultBadge");
+const desc = document.getElementById("rankDesc");
+const credImg = document.getElementById("demoCredImg");
+const dlLink = document.getElementById("downloadDemoCredLink");
+const upBox = document.getElementById("uploadS2Box");
+const upBtn = document.getElementById("confirmUploadS2Btn");
+document.getElementById("scoreNum").textContent = `${score}分`;
+
+if (score >= 80) {
+const credUrl = buildDemoCredDataUrl(playerName, score, timeStr, nowStr);
+lastDemoBlob = dataURLToBlob(credUrl);
+credImg.src = credUrl;
+credImg.style.display = "block";
+dlLink.href = credUrl;
+dlLink.download = `时段2_LiveDemo_${playerName}_${score}分.jpg`;
+dlLink.style.display = "inline-block";
+upBox.style.display = "block";
+upBtn.disabled = false;
+upBtn.textContent = "一键上传此凭证至后台";
+document.getElementById("s2UploadStatus").style.color = "#92400e";
+document.getElementById("s2UploadStatus").textContent = "正在自动上传通关凭证至后台...";
+
+if (score === 100) {
+badge.textContent = "满分通过";
+desc.textContent = "6道题全部答对！";
+launchFullCelebration();
+} else {
+badge.textContent = "考核达标（>=80分）";
+desc.textContent = "已达标！可查看下方错题解析巩固细节";
+playInstantCheckSound(true);
+}
+uploadSlot2Credential(null);
+} else {
+credImg.style.display = "none";
+dlLink.style.display = "none";
+upBox.style.display = "none";
+badge.textContent = "未满 80 分 · 需重新作答";
+desc.textContent = "达标线为 80 分（最多允许错 1 题），请对照下方解析复习后点击「重新作答」";
+playInstantCheckSound(false);
+}
+resultBox.style.display = "block";
+document.getElementById("submitBtn").style.display = "none";
+resultBox.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function resetQuiz() {
+submitted = false;
+userAnswers.fill(null);
+questionRevealed.fill(false);
+document.getElementById("resultBox").style.display = "none";
+document.getElementById("submitBtn").style.display = "inline-block";
+document.getElementById("progressText").textContent = `已答 0 / ${questions.length} 题`;
+document.getElementById("progressFill").style.width = "0%";
+renderQuiz();
+startTimer();
+}
+
+renderQuiz();
+startTimer();
+</script>
+</body>
+</html>
