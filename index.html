@@ -222,7 +222,7 @@ body{background:var(--bg);color:var(--text);line-height:1.55;padding:20px 14px 6
 
 <div class="video-box">
 <div class="video-wrap">
-<video id="liveDemoVideo" controls playsinline preload="auto" autoplay muted src="https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_1.mp4"></video>
+<video id="liveDemoVideo" controls playsinline preload="auto" autoplay muted src="./LiveDemo_HD_1.mp4"></video>
 <div class="video-unmute-overlay" id="unmuteOverlay" onclick="enableVideoSound()">
 <div class="unmute-content">
 <div class="unmute-icon">🔊</div>
@@ -232,14 +232,15 @@ body{background:var(--bg);color:var(--text);line-height:1.55;padding:20px 14px 6
 </div>
 </div>
 <div class="video-parts" id="videoPartsBar">
-<button type="button" class="vpart-btn active" onclick="playVideoPart(0,true)">第1段：开场与分工</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(1,true)">第2段：邀约与提问</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(2,true)">第3段：相机核心演示</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(3,true)">第4段：Watch与AirPods延伸</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(4,true)">第5段：转化交接与复盘</button>
+<button type="button" class="vpart-btn active" onclick="playVideoPart(0,true)">第1段：开场概览</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(1,true)">第2段：准备与邀约</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(2,true)">第3段：提问与风格自拍</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(3,true)">第4段：长焦与双屏预览</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(4,true)">第5段：Watch与AirPods延伸</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(5,true)">第6段：转化交接与复盘</button>
 </div>
-<div class="video-tip" id="videoPartTip">1080p 高清连播模式 · 当前第 1 / 5 段（播完自动无缝跳下一段）</div>
-<link id="nextVideoPreload" rel="preload" as="video" href="https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_2.mp4" />
+<div class="video-tip" id="videoPartTip">1080p 高清连播模式 · 当前第 1 / 6 段（播完自动无缝跳下一段）</div>
+<link id="nextVideoPreload" rel="preload" as="video" href="LiveDemo_HD_2.mp4" />
 </div>
 
 <div class="mode-row">
@@ -294,50 +295,24 @@ const CLOUD_BASE = "https://ntfy.sh/" + CLOUD_TOPIC;
 const PLAYER_KEY = "fy27q1_player_name_v3";
 const OPTION_LABELS = ["A", "B", "C", "D"];
 
-const EMP_KEYS = [
-["alan wei","魏兴华","alan"],["austin xie","谢传玮"],["binbin ji","纪泽斌","binbin"],["cecil huang","黄振宇","cecil"],
-["clare qiu","丘艺多","clare"],["hansen liu","刘帅飞","hansen"],["lynn zeng","曾晓玲","lynn"],["momo zhu","朱梅女","momo"],
-["nathan zhuang","庄竞尧","nathan"],["nicole tang","唐梦","nicole"],["nydia shen","沈泽男","nydia"],["star zhou","周鑫秀","star"],
-["tina guo","郭伟芳"],["vivian ma","马文婷","vivian"],["winnie wu","吴思萍","winnie"],["yuri zhang","张木子","yuri"],
-["alex ye","叶力","alex"],["bruce lan","蓝立平","bruce"],["erin liu","刘艾琳","erin"],["ferry lang","郎福江","ferry"],
-["gianna chen","陈思安","gianna"],["jackie guo","jiaqi guo","郭嘉琪","jackie"],["mag zhou","周觅谧","mag"],["phyllis zheng","郑璐滢","phyllis"],
-["roy shi","石熔英","roy"],["yota huang","黄昱涛","yota"],["ziya zheng","郑晓燕","ziya"],["wendy lin","林玮","wendy"],
-["heaven wu","伍汶健","heaven"],["molly wang","王雪娇","molly"],["polly zhong","钟琴芳","polly"],["tianyi deng","邓添仪","tianyi"],
-["shirley zhong","钟丽婷","shirley"],["andriel wu","吴承昊","andriel"],["jenny hong","洪锦思","jenny"],["yan chen","陈燕","yan"],
-["jennifer shi","石再舟","jennifer"],["charlie chen","陈袆婧","charlie"],["austin ju","鞠承坤"],["cyber xu","许宇辰","cyber"],
-["jerry yang","杨勇","jerry"],["mina yang","杨舒铭","mina"],["stella huang","黄签贺","stella"],["zee wang","王梓","zee"],
-["erica zhu","朱赛娣","erica"],["illya sun","孙菲涵","illya"],["joyce xu","许芷瑜","joyce"],["kiki ren","任祺","kiki"],
-["leah niu","牛楠楠","leah"],["polo luo","罗延剑","polo"],["sylus kang","康琦琪","sylus"],["young xu","许海洋","young"],
-["ze meng","蒙泽"],["alston liu","刘捷","alston"],["devin zheng","郑文超","devin"],["heecul ling","凌珍宝","heecul"],
-["jason sun","孙建聪","jason"],["john yu","余俊超"],["maggie tu","涂知","maggie"],["fay yang","杨志婷","fay"],
-["shy huang","黄书海","shy"],["tina liao","廖婉璐"],["daniel huang","黄媛","daniel"],["suzy su","苏婉芳","suzy"],
-["ondine lin","林奕","ondine"],["kay wang","王舒婷","kay"],["sene zhuang","庄欣轶","sene"],["coral xu","徐逸珊","coral"],
-["troy xie","谢云飞","troy"],["fish zhang","张建立","fish"],["fenny he","何雪香","fenny"],["harry liu","刘嵘","harry"],
-["luna yan","颜璐","luna"],["summer cai","蔡静茹","summer"],["zoe zhao","赵慧雯","zoe"],["abby lee","李青","abby"],
-["bourbon liao","廖弘","bourbon"],["chuck chen","陈超强","chuck"],["gala li","李利丹","gala"],["haysar hailati","海沙尔·海拉提","haysar"],
-["joanann huang","黄琼萱","joanann"],["leo ye","叶鹭江","leo"],["milk yang","杨帆","milk"],["sunny sun","孙晓燕"],
-["trevor tang","唐龙","trevor"],["alisa wu","吴雅云","alisa"],["rebecca zhan","詹崴","rebecca"],["milkly chen","陈雁妮","milkly"],
-["ken lin","林晨剑","ken"],["max ma","马鸿鹏","max"],["saki zhao","赵欣妍","saki"],["wen luo","罗雯","wen"],
-["stin lin","林睿","stin"],["ella xu","徐芸秀","ella"],["hans yang","杨林泽","hans"],["leena zhang","张李娜","leena"],
-["miya shi","释传红","miya"],["saturn liu","刘屿安","saturn"],["sunny chen","陈旭"],["tiffany huang","黄恺颉","tiffany"],
-["aday xiao","肖丹丹","aday"],["cici liu","刘思辰","cici"],["yvonne xia","夏鸥","yvonne"],["arvin luo","罗全鑫","arvin"],
-["waiting huang","黄玮婷","waiting"],["rex zheng","郑宇嘉","rex"],["allen xu","许瑞扬"],["emma wu","吴青","emma"],
-["john hong","洪明清"],["mengseng lim","lim明胜","mengseng"],["sylvia hu","胡兴萍","sylvia"],["yulei song","宋昱磊","yulei"],
-["angela zhang","张莹莹","angela"],["ava yang","杨钦","ava"],["danny zhou","周星凯","danny"],["jessica zhu","朱海","jessica"]
-];
-
+const HASH_TO_IDX = {"1371730774":0,"1921238484":0,"746418370":0,"3189213297":0,"3383165215":1,"1565635137":1,"1557776029":1,"1799537046":2,"2931375400":2,"1464131362":2,"2232734305":2,"3259331324":3,"4224234614":3,"3924112819":3,"3624452601":3,"185041399":4,"519751291":4,"1597516025":4,"2014803022":4,"891497226":5,"2894528146":5,"3736072702":5,"1411740436":5,"3254124910":6,"1708891630":6,"2165995426":6,"2163810160":6,"1042527986":7,"3308127492":7,"1693040086":7,"701147923":7,"513609964":8,"3226279118":8,"2875070570":8,"2368562017":8,"717783949":9,"3914474463":9,"695588661":9,"3978066055":9,"2856636036":10,"4278830500":10,"782550001":10,"2982313792":10,"1481047343":11,"2533963977":11,"3550272082":11,"2313967159":11,"134786376":12,"883596354":12,"1461467676":12,"3710490838":13,"1843071806":13,"3966059155":13,"331439140":13,"2044148455":14,"2582429865":14,"1383113975":14,"122207605":14,"3726236462":15,"3094261534":15,"1346946369":15,"1917427256":15,"2597008367":16,"4072863265":16,"1257011524":16,"3356297939":16,"2968590641":17,"1421442293":17,"3390908216":17,"1379815098":17,"260202489":18,"2180766135":18,"2091966626":18,"2815262455":18,"3758491059":19,"4207964289":19,"2365410349":19,"3025683401":19,"3906870975":20,"3251502213":20,"2861909423":20,"1643228637":20,"2699979931":21,"399604479":21,"1494620210":21,"505149280":21,"2920248001":21,"4001457182":21,"3219219668":22,"3882673664":22,"4091206425":22,"1470276986":22,"2558402136":23,"338343844":23,"1686217592":23,"957678842":23,"1969189341":24,"53871847":24,"1080165327":24,"3117897967":24,"3751114533":25,"4279171501":25,"3132360029":25,"1116256772":25,"2763766454":26,"3930269214":26,"3048981254":26,"2229943836":26,"2397230779":27,"1423100635":27,"1658723806":27,"3743683424":27,"869261236":28,"696101756":28,"2150912763":28,"3281889996":28,"1211305269":29,"2950143497":29,"3566461867":29,"2869710378":29,"2997867329":30,"1637377195":30,"2723996065":30,"4158321577":30,"756344699":31,"68259633":31,"3692809257":31,"3661124237":31,"11316819":32,"1017423985":32,"2522145884":32,"4024805723":32,"549329640":33,"3190288728":33,"3730263588":33,"3677870232":33,"2364817077":34,"360653183":34,"1145280326":34,"4250281589":34,"1888161611":35,"842622521":35,"1755575636":35,"2929527281":35,"3443728532":36,"1813264152":36,"928162672":36,"3217868082":36,"1847003865":37,"2583079315":37,"833306894":37,"3544403435":37,"2652955442":38,"1615447236":38,"1452781210":38,"1774284727":39,"1842978103":39,"1826698910":39,"2159183248":39,"4263641902":40,"3236704532":40,"1261604138":40,"339251901":40,"2366410193":41,"3295593865":41,"2919866980":41,"1522007460":41,"3399865383":42,"2986356875":42,"608315689":42,"3406057686":42,"2759602072":43,"2355710194":43,"2870819129":43,"995746853":43,"3705305874":44,"2372879268":44,"3965902036":44,"2455715891":44,"2636529042":45,"1145364266":45,"539651019":45,"1944498340":45,"2592469914":46,"2182847380":46,"2810233314":46,"2871994219":46,"3742550302":47,"3920080684":47,"362433358":47,"225510267":47,"928690685":48,"467750427":48,"1706869728":48,"365249649":48,"859146239":49,"3602650281":49,"3978603749":49,"2974181783":49,"30908808":50,"2800798458":50,"3900058916":50,"3742070849":50,"3431704492":51,"3317842314":51,"1770134995":51,"3782038913":51,"2969681827":52,"2830771631":52,"2972596001":52,"2685719202":53,"2026775258":53,"4017683498":53,"1775353772":53,"1298645047":54,"2058445653":54,"1365272378":54,"2074658773":54,"865063995":55,"2514166233":55,"2031088335":55,"2714554601":55,"3001450776":56,"3209984396":56,"2249792954":56,"2841391786":56,"4222907652":57,"1861230640":57,"1883905075":57,"894226196":58,"249781114":58,"1731604346":58,"1938301437":58,"467556266":59,"26930968":59,"3728018391":59,"938195793":59,"1448326910":60,"3848759340":60,"2860300754":60,"1166898635":60,"2973648548":61,"2369222254":61,"333469150":61,"1062631733":62,"1082524701":62,"4224103746":62,"572250612":62,"279241510":63,"651861354":63,"2374108468":63,"4021776490":63,"3014415279":64,"3211066087":64,"2315733315":64,"4017211828":64,"908011529":65,"451538405":65,"10727811":65,"2956601678":65,"3669049925":66,"2735714153":66,"540688564":66,"3011357034":66,"2117221079":67,"731453911":67,"2192034867":67,"1215393840":67,"1046801643":68,"624815781":68,"3377071968":68,"3214409341":68,"3066372071":69,"3874161405":69,"2107769822":69,"2925472489":69,"3286513036":70,"3261518602":70,"3064999835":70,"2567430561":70,"2314909481":71,"3479605447":71,"3264960339":71,"642588487":71,"1592272457":72,"177269807":72,"20843823":72,"1327002001":72,"2234045529":73,"291503613":73,"810769732":73,"3020611506":73,"1940496491":74,"3405772821":74,"2003179688":74,"1466402755":74,"2612665143":75,"3642909145":75,"3791024583":75,"223985425":75,"321299909":76,"3490384057":76,"2582766749":76,"3073717494":76,"3474342751":77,"2206377381":77,"1770233850":77,"1602879229":77,"108405519":78,"2828001887":78,"20418833":78,"2707007368":78,"4142433373":79,"3499746643":79,"2973759358":79,"3534845395":79,"1497186203":80,"1664968007":80,"2688278838":80,"845452258":80,"2139867165":81,"1579590651":81,"3477013219":81,"3162147341":81,"1352056753":82,"2732226537":82,"2353387389":82,"1421047556":82,"573739584":83,"14088740":83,"1740390190":83,"2720848109":84,"3278771263":84,"986276088":84,"1101433063":84,"3398092907":85,"3388691749":85,"4185439579":85,"2853014929":85,"1602956777":86,"1460959601":86,"2145555350":86,"150504852":86,"3054013457":87,"3271041499":87,"861647042":87,"2891159507":87,"1211265796":88,"919925158":88,"973977231":88,"2739184179":88,"2309683959":89,"4264575393":89,"1946525859":89,"983726035":89,"3144116387":90,"3720467805":90,"1794140210":90,"253996891":90,"3881577231":91,"3145661593":91,"259190257":91,"282235527":91,"3122098908":92,"3991850126":92,"3017298273":92,"2382357563":92,"4257722492":93,"4125304250":93,"1810802545":93,"2700877617":93,"2634583936":94,"1904875818":94,"458634789":94,"1482865763":94,"3873189696":95,"4194399084":95,"2307557843":95,"196163798":95,"225856329":96,"886262811":96,"2686303169":96,"1920874459":96,"4004393654":97,"684735030":97,"2984176001":97,"3746651760":97,"4168426042":98,"3194484326":98,"1888558572":98,"1370546651":99,"3468484615":99,"2367514612":99,"1633239714":99,"2821594999":100,"1409488367":100,"1431277033":100,"910973660":100,"3531735581":101,"993880403":101,"438219188":101,"3189735131":101,"4100517254":102,"2429110662":102,"1389594363":102,"4110937680":102,"490911597":103,"1745902499":103,"2871686077":103,"1797212073":103,"3019957039":104,"3636954435":104,"59756170":104,"277973534":104,"1666110092":105,"1391289568":105,"1875480790":105,"3035687158":105,"3073960104":106,"2647099294":106,"1591813355":106,"2098395141":107,"3992254867":107,"3487361757":107,"164449867":107,"470100696":108,"1573160084":108,"447708726":108,"643860747":109,"825371389":109,"2397506825":109,"3631191081":109,"1438669786":110,"956482452":110,"1821618329":110,"3026718587":110,"186766750":111,"4262790708":111,"4144914875":111,"3384113893":111,"2666876713":112,"2846122947":112,"3270212675":112,"3983904767":112,"3270119224":113,"597067538":113,"3956713885":113,"3868283723":113,"3009525483":114,"3828253565":114,"3337537431":114,"1432382155":114,"3212394394":115,"4252297308":115,"3126039147":115,"2413209371":115};
+function hashNameStr(raw) {
+  const s = raw.trim().toLowerCase().replace(/\s+/g, ' ');
+  let h = 2166136261;
+  const salt = 'fy27q1_demo_salt_' + s;
+  for (let i = 0; i < salt.length; i++) {
+    h ^= salt.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return String(h);
+}
 function findMatchedEmpIdx(raw) {
-if (!raw || !raw.trim()) return -1;
-const norm = raw.trim().toLowerCase().replace(/\s+/g, " ");
-const compact = norm.replace(/\s+/g, "");
-for (let i = 0; i < EMP_KEYS.length; i++) {
-const arr = EMP_KEYS[i];
-for (let j = 0; j < arr.length; j++) {
-const k = arr[j];
-if (norm === k || compact === k.replace(/\s+/g, "")) return i;
-}
-}
-return -1;
+  if (!raw || !raw.trim()) return -1;
+  const h1 = hashNameStr(raw);
+  if (HASH_TO_IDX[h1] !== undefined) return HASH_TO_IDX[h1];
+  const h2 = hashNameStr(raw.replace(/\s+/g, ''));
+  if (HASH_TO_IDX[h2] !== undefined) return HASH_TO_IDX[h2];
+  return -1;
 }
 
 const questions = [
@@ -947,12 +922,14 @@ renderQuiz();
 startTimer();
 }
 
+
 const VIDEO_PARTS = [
-  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_1.mp4",
-  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_2.mp4",
-  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_3.mp4",
-  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_4.mp4",
-  "https://github.com/snbwvhtc42-boop/LiveDemo-Apple-/releases/download/1.0/LiveDemo_HD_5.mp4"
+  "./LiveDemo_HD_1.mp4",
+  "./LiveDemo_HD_2.mp4",
+  "./LiveDemo_HD_3.mp4",
+  "./LiveDemo_HD_4.mp4",
+  "./LiveDemo_HD_5.mp4",
+  "./LiveDemo_HD_6.mp4"
 ];
 let currentVideoPart = 0;
 
@@ -963,7 +940,6 @@ function enableVideoSound() {
   const overlay = document.getElementById("unmuteOverlay");
   if (overlay) overlay.style.display = "none";
 }
-
 function playVideoPart(idx, autoPlay) {
   if (idx < 0 || idx >= VIDEO_PARTS.length) return;
   currentVideoPart = idx;
@@ -971,7 +947,7 @@ function playVideoPart(idx, autoPlay) {
   v.src = VIDEO_PARTS[idx];
   const btns = document.querySelectorAll("#videoPartsBar .vpart-btn");
   btns.forEach((b, i) => b.classList.toggle("active", i === idx));
-  document.getElementById("videoPartTip").textContent = `1080p 高清连播模式 · 当前第 ${idx + 1} / 5 段（播完自动无缝连播下一段）`;
+  document.getElementById("videoPartTip").textContent = `1080p 高清连播模式 · 当前第 ${idx + 1} / 6 段（播完自动无缝连播下一段）`;
   const pre = document.getElementById("nextVideoPreload");
   if (pre && idx + 1 < VIDEO_PARTS.length) pre.href = VIDEO_PARTS[idx + 1];
   if (autoPlay) {
@@ -981,11 +957,12 @@ function playVideoPart(idx, autoPlay) {
 (function bindSeamlessVideo() {
   const v = document.getElementById("liveDemoVideo");
   if (!v) return;
+  v.addEventListener("volumechange", function() { if (!v.muted) { const ov = document.getElementById("unmuteOverlay"); if (ov) ov.style.display = "none"; } });
   v.addEventListener("ended", function() {
     if (currentVideoPart + 1 < VIDEO_PARTS.length) {
       playVideoPart(currentVideoPart + 1, true);
     } else {
-      document.getElementById("videoPartTip").textContent = "✓ 完整 5 段高清视频已全部播放完毕，请完成下方 6 道核心题";
+      document.getElementById("videoPartTip").textContent = "✓ 完整 6 段高清视频已全部播放完毕，请完成下方 6 道核心题";
     }
   });
 })();
