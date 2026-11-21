@@ -232,15 +232,14 @@ body{background:var(--bg);color:var(--text);line-height:1.55;padding:20px 14px 6
 </div>
 </div>
 <div class="video-parts" id="videoPartsBar">
-<button type="button" class="vpart-btn active" onclick="playVideoPart(0,true)">第1段：开场概览</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(1,true)">第2段：准备与邀约</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(2,true)">第3段：提问与风格自拍</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(3,true)">第4段：长焦与双屏预览</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(4,true)">第5段：Watch与AirPods延伸</button>
-<button type="button" class="vpart-btn" onclick="playVideoPart(5,true)">第6段：转化交接与复盘</button>
+<button type="button" class="vpart-btn active" onclick="playVideoPart(0,true)">第1段：开场与分工</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(1,true)">第2段：邀约与提问</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(2,true)">第3段：相机核心演示</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(3,true)">第4段：Watch与AirPods延伸</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(4,true)">第5段：转化交接与复盘</button>
+<button type="button" class="vpart-btn" onclick="playVideoPart(5,true)">第6段：补充内容</button>
 </div>
 <div class="video-tip" id="videoPartTip">1080p 高清连播模式 · 当前第 1 / 6 段（播完自动无缝跳下一段）</div>
-<link id="nextVideoPreload" rel="preload" as="video" href="LiveDemo_HD_2.mp4" />
 </div>
 
 <div class="mode-row">
@@ -443,6 +442,10 @@ document.getElementById("tabAI").className = "session-tab" + (tab === "ai" ? " a
 document.getElementById("tabDemo").className = "session-tab" + (tab === "demo" ? " active-demo" : "");
 document.getElementById("aiSection").style.display = (tab === "all" || tab === "ai") ? "block" : "none";
 document.getElementById("demoSection").style.display = (tab === "all" || tab === "demo") ? "block" : "none";
+if (tab === "ai") {
+  const v = document.getElementById("liveDemoVideo");
+  if (v && !v.paused) v.pause();
+}
 playTapSound(true);
 }
 
@@ -940,30 +943,50 @@ function enableVideoSound() {
   const overlay = document.getElementById("unmuteOverlay");
   if (overlay) overlay.style.display = "none";
 }
+
+function setNextPreload(url) {
+  document.querySelectorAll("link[data-preload-next]").forEach(function(el) { el.remove(); });
+  if (!url) return;
+  const link = document.createElement("link");
+  link.rel = "preload";
+  link.as = "video";
+  link.href = url;
+  link.setAttribute("data-preload-next", "1");
+  document.head.appendChild(link);
+}
+
 function playVideoPart(idx, autoPlay) {
   if (idx < 0 || idx >= VIDEO_PARTS.length) return;
   currentVideoPart = idx;
   const v = document.getElementById("liveDemoVideo");
   v.src = VIDEO_PARTS[idx];
   const btns = document.querySelectorAll("#videoPartsBar .vpart-btn");
-  btns.forEach((b, i) => b.classList.toggle("active", i === idx));
-  document.getElementById("videoPartTip").textContent = `1080p 高清连播模式 · 当前第 ${idx + 1} / 6 段（播完自动无缝连播下一段）`;
-  const pre = document.getElementById("nextVideoPreload");
-  if (pre && idx + 1 < VIDEO_PARTS.length) pre.href = VIDEO_PARTS[idx + 1];
+  btns.forEach(function(b, i) { b.classList.toggle("active", i === idx); });
+  document.getElementById("videoPartTip").textContent = `1080p 高清连播模式 · 当前第 ${idx + 1} / ${VIDEO_PARTS.length} 段（播完自动无缝连播下一段）`;
+  setNextPreload(idx + 1 < VIDEO_PARTS.length ? VIDEO_PARTS[idx + 1] : null);
   if (autoPlay) {
     v.play().catch(() => {});
   }
 }
+
 (function bindSeamlessVideo() {
   const v = document.getElementById("liveDemoVideo");
   if (!v) return;
-  v.addEventListener("volumechange", function() { if (!v.muted) { const ov = document.getElementById("unmuteOverlay"); if (ov) ov.style.display = "none"; } });
+  v.addEventListener("volumechange", function() {
+    if (!v.muted) {
+      const ov = document.getElementById("unmuteOverlay");
+      if (ov) ov.style.display = "none";
+    }
+  });
   v.addEventListener("ended", function() {
     if (currentVideoPart + 1 < VIDEO_PARTS.length) {
       playVideoPart(currentVideoPart + 1, true);
     } else {
-      document.getElementById("videoPartTip").textContent = "✓ 完整 6 段高清视频已全部播放完毕，请完成下方 6 道核心题";
+      document.getElementById("videoPartTip").textContent = `✓ 完整 ${VIDEO_PARTS.length} 段高清视频已全部播放完毕，请完成下方 6 道核心题`;
     }
+  });
+  v.addEventListener("error", function() {
+    document.getElementById("videoPartTip").textContent = `第 ${currentVideoPart + 1} 段加载失败，请检查网络后点击上方分段按钮重试`;
   });
 })();
 
